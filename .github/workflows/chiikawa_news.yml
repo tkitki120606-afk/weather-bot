@@ -1,7 +1,7 @@
-name: Chiikawa Info Bot  # ← これが「Actions」に表示される名前になります
+name: Chiikawa Info Bot
 
 on:
-  workflow_dispatch:    # ← これを書くと「Run workflow」ボタンが出現します！
+  workflow_dispatch:
   schedule:
     - cron: '0 22,1,4,7,10 * * *'
 
@@ -13,18 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.9'}
-      # BeautifulSoupを入れるのを忘れずに！
+        with:
+          python-version: '3.9'
       - run: pip install requests beautifulsoup4
       - run: python chiikawa_bot.py
         env:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           GROUP_ID: ${{ secrets.GROUP_ID }}
-- name: Commit changes
+      - name: Commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # ファイルが存在する場合のみ追加する（これでエラーにならなくなります）
-          if [ -f last_chiikawa.txt ]; then git add last_chiikawa.txt; fi
+          # ファイルがあれば追加、なければ無視する魔法のコマンド
+          git add last_chiikawa.txt || true
           # 変更がある場合のみコミットする
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update chiikawa info" && git push)
