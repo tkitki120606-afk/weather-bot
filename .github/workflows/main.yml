@@ -1,7 +1,8 @@
 name: Daily Weather Bot
 on:
   schedule:
-    - cron: '30 21 * * *'
+    # 7時(22時UTC), 11時(02時UTC), 15時(06時UTC)に実行
+    - cron: '0 22,2,6 * * *'
   workflow_dispatch:
 
 jobs:
