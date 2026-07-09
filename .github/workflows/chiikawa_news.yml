@@ -1,4 +1,20 @@
-# 変更点: beautifulsoup4 を feedparser に変更
+name: Chiikawa Info Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 22,1,4,7,10 * * *'
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
       - run: pip install requests feedparser
       - run: python chiikawa_bot.py
         env:
@@ -8,6 +24,5 @@
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # ファイルがあれば追加
           git add last_chiikawa_*.txt || true
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update chiikawa links" && git push)
