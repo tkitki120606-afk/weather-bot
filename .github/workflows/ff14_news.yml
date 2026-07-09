@@ -1,7 +1,8 @@
 name: FF14 News Bot
 on:
   schedule:
-    - cron: '0 9,12,18 * * *' # 朝9時、昼12時、夕方18時にチェック
+    # 0分に実行、時間はUTCの「22,3,4,5,6,7,8,9,10,11」
+    - cron: '0 22,3,4,5,6,7,8,9,10,11 * * *'
   workflow_dispatch:
 jobs:
   run-bot:
