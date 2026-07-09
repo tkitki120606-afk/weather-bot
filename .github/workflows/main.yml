@@ -1,8 +1,8 @@
 name: Daily Weather Bot
 on:
   schedule:
-    - cron: '30 21 * * *' # 日本時間の朝6:30に実行（UTCなので-9時間）
-    workflow_dispatch:
+    - cron: '30 21 * * *'
+  workflow_dispatch:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
