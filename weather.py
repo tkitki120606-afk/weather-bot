@@ -29,7 +29,10 @@ try:
     min_data = response["minutely_15"]
     times, temps, probs, codes = min_data["time"], min_data["temperature_2m"], min_data["precipitation_probability"], min_data["weather_code"]
 
-    now = datetime.datetime.now()
+    JST = datetime.timezone(datetime.timedelta(hours=+9))
+    now = datetime.datetime.now(JST).replace(tzinfo=None)
+    
+    print(f" ➔ 現在時刻: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     pop_text = ""
     max_temp = -100
     max_prob = 0
