@@ -1,8 +1,10 @@
-name: Chiikawa Info Bot
+name: Chiikawa Info Bot  # ← これが「Actions」に表示される名前になります
+
 on:
+  workflow_dispatch:    # ← これを書くと「Run workflow」ボタンが出現します！
   schedule:
-    - cron: '0 22,1,4,7,10 * * *' # 日本時間 7,10,13,16,19時に実行
-  workflow_dispatch:
+    - cron: '0 22,1,4,7,10 * * *'
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
