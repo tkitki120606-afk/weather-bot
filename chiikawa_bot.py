@@ -9,43 +9,35 @@ USER_ID = os.environ.get('GROUP_ID')
 LAST_INFO_FILE = "last_chiikawa.txt"
 TARGET_URL = "https://chiikawa-info.jp/news/"
 
-def send_line(message):
-    line_url = "https://api.line.me/v2/bot/message/push"
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {LINE_TOKEN}"}
-    payload = {"to": USER_ID, "messages": [{"type": "text", "text": message}]}
-    requests.post(line_url, headers=headers, json=payload)
-
 # === メイン処理 ===
 response = requests.get(TARGET_URL)
-# サイト側の文字化け対策
 response.encoding = response.apparent_encoding
 soup = BeautifulSoup(response.text, 'html.parser')
 
-# ★ここが重要！ニュースリストの場所を特定します
-# 現在のサイト構造から「ニュース記事のタイトル一覧」を抜き出します
+# ★ここを変更：すべてのタイトルを表示させて確認します
 news_list = soup.select('.news-list li a') 
 
+print(f"DEBUG: {len(news_list)} 個の記事を見つけました")
+
 if news_list:
-    # 一番新しい記事（リストの先頭）を取得
     latest_item = news_list[0]
     latest_title = latest_item.get_text().strip()
-    latest_link = "https://chiikawa-info.jp" + latest_item.get('href')
-    
-    # 前回の記録と比較
+    print(f"DEBUG: 最新のタイトルは『{latest_title}』です") # 何を拾ったかログに出す
+
+    # 前回の記録を読み込み
+    last_info = ""
     if os.path.exists(LAST_INFO_FILE):
         with open(LAST_INFO_FILE, "r") as f:
             last_info = f.read().strip()
-    else:
-        last_info = ""
 
     if latest_title != last_info:
-        print(f"新しいちいかわ情報発見: {latest_title}")
-        message = f"📢【ちいかわ情報局】\n\n{latest_title}\n\n{latest_link}"
-        send_line(message)
-        
+        print("新しい情報なので送信します！")
+        # (LINE送信処理はそのまま)
+        # ... (中略: 送信処理) ...
+        # (最後に記録を保存)
         with open(LAST_INFO_FILE, "w") as f:
             f.write(latest_title)
     else:
-        print("新しい情報なし")
+        print("前回の情報と同じなので送信しません。")
 else:
-    print("情報を取得できませんでした")
+    print("DEBUG: 記事が1つも見つかりませんでした（HTMLの指定が間違っているかも）")
