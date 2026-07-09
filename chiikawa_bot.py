@@ -1,43 +1,51 @@
 import os
 import requests
-from bs4 import BeautifulSoup
-import sys
+import feedparser
 
-# === 設定 ===
+# === 設定エリア ===
 LINE_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
 USER_ID = os.environ.get('GROUP_ID')
-LAST_INFO_FILE = "last_chiikawa.txt"
-TARGET_URL = "https://chiikawa-info.jp/news/"
+
+# 監視したいURLリスト
+FEEDS = [
+    {"name": "公式ニュース", "file": "last_chiikawa_official.txt", "url": "https://chiikawa.jp/feed"},
+    {"name": "ちいかわ情報RSS", "file": "last_chiikawa_rssapp.txt", "url": "https://rss.app/feeds/ieXLGys59HQY5HaB.xml"}
+]
+
+def send_line(message):
+    line_url = "https://api.line.me/v2/bot/message/push"
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {LINE_TOKEN}"}
+    payload = {"to": USER_ID, "messages": [{"type": "text", "text": message}]}
+    requests.post(line_url, headers=headers, json=payload)
 
 # === メイン処理 ===
-response = requests.get(TARGET_URL)
-response.encoding = response.apparent_encoding
-soup = BeautifulSoup(response.text, 'html.parser')
+for feed_info in FEEDS:
+    name = feed_info["name"]
+    filename = feed_info["file"]
+    url = feed_info["url"]
 
-# ★ここを変更：すべてのタイトルを表示させて確認します
-news_list = soup.select('.news-list li a') 
+    # RSSを取得
+    feed = feedparser.parse(url)
+    if len(feed.entries) == 0:
+        print(f"[{name}] 記事が取得できませんでした")
+        continue
 
-print(f"DEBUG: {len(news_list)} 個の記事を見つけました")
+    latest_entry = feed.entries[0]
+    
+    # 前回の記録を読み込む
+    last_link = ""
+    if os.path.exists(filename):
+        with open(filename, "r") as f:
+            last_link = f.read().strip()
 
-if news_list:
-    latest_item = news_list[0]
-    latest_title = latest_item.get_text().strip()
-    print(f"DEBUG: 最新のタイトルは『{latest_title}』です") # 何を拾ったかログに出す
-
-    # 前回の記録を読み込み
-    last_info = ""
-    if os.path.exists(LAST_INFO_FILE):
-        with open(LAST_INFO_FILE, "r") as f:
-            last_info = f.read().strip()
-
-    if latest_title != last_info:
-        print("新しい情報なので送信します！")
-        # (LINE送信処理はそのまま)
-        # ... (中略: 送信処理) ...
-        # (最後に記録を保存)
-        with open(LAST_INFO_FILE, "w") as f:
-            f.write(latest_title)
+    # 新しい記事か判定
+    if latest_entry.link != last_link:
+        print(f"[{name}] 新しい記事発見: {latest_entry.title}")
+        message = f"📢【ちいかわ {name}】\n\n{latest_entry.title}\n\n{latest_entry.link}"
+        send_line(message)
+        
+        # 記録を更新
+        with open(filename, "w") as f:
+            f.write(latest_entry.link)
     else:
-        print("前回の情報と同じなので送信しません。")
-else:
-    print("DEBUG: 記事が1つも見つかりませんでした（HTMLの指定が間違っているかも）")
+        print(f"[{name}] 更新なし")
