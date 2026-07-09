@@ -1,13 +1,15 @@
-import datetime  # 👈 これが今度こそバッチリ入っています！
-import json
-import sys
+import os
 import requests
+import json
+import datetime
+import sys
 
-# === 🛠️ 設定情報（ここにメモした鍵を貼り付けます） ===
-# ※まわりの " " を消さないように、内側の文字だけを書き換えてね！
-LINE_TOKEN = "nDhp4o4EYYQjTaL4sah8s3AuCnTkI4WYcMCZGFemxJPOkyBQ626TQD/ysPBJ5hL2AXL9KUmHH8u7fNqr7ne3QOibPKu5yf+stIqQ90lH1oyGDT6AiaR8F8AwLs9o67ekAUg5HxSa6ls5RkA0i88BMAdB04t89/1O/w1cDnyilFU="
-USER_ID = "C14f2b8d77a231bb8d5d699e28ae0893c"
-# ==========================================================
+# === 🛠️ 設定情報 ===
+# 直書きをやめて、GitHubの秘密箱から読み込む形にします
+LINE_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
+USER_ID = os.environ.get('GROUP_ID')
+# ===================
+
 print("--- [1] タイムリー詳細お天気システム 起動 ---")
 
 if "ここに" in LINE_TOKEN or "ここに" in USER_ID:
