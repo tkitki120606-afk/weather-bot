@@ -1,1 +1,19 @@
 
+name: Test LINE Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - run: pip install requests
+      - run: python test_line.py
+        env:
+          LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
+          GROUP_ID: ${{ secrets.GROUP_ID }}
