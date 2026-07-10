@@ -20,9 +20,10 @@ jobs:
         env:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           GROUP_ID: ${{ secrets.GROUP_ID }}
-      - name: Commit changes
+- name: 履歴を保存（Commit & Push）
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add last_chiikawa_*.txt || true
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update chiikawa links" && git push)
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "履歴を更新" || echo "変更なし"
+          git push
