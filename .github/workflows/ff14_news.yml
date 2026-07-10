@@ -19,10 +19,10 @@ jobs:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           GROUP_ID: ${{ secrets.GROUP_ID }}
       # 更新された last_link.txt をGitHubに保存する
-      - name: Commit changes
+- name: FF14の送信履歴を保存
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add last_link.txt
-          # もしファイルに変更があったらコミットする
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update last link" && git push)
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "FF14の履歴を更新" || echo "変更なし"
+          git push
