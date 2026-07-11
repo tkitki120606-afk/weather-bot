@@ -1,25 +1,28 @@
 name: FF14 News Bot
+
 on:
   schedule:
     # 0分に実行、時間はUTCの「22,3,4,5,6,7,8,9,10,11」
     - cron: '0 22,3,4,5,6,7,8,9,10,11 * * *'
   workflow_dispatch:
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # 👈 【超重要】GitHubにファイルを書き込む許可
+      contents: write # GitHubにファイルを書き込む許可
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with: {python-version: '3.9'}
-      - run: pip install requests feedparser # 必要なツールをインストール
+        with:
+          python-version: '3.9'
+      - run: pip install requests feedparser
       - run: python ff14_bot.py
         env:
           LINE_ACCESS_TOKEN: ${{ secrets.LINE_ACCESS_TOKEN }}
           GROUP_ID: ${{ secrets.GROUP_ID }}
-      # 更新された last_link.txt をGitHubに保存する
-- name: FF14の送信履歴を保存
+      
+      - name: FF14の送信履歴を保存
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
