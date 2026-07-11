@@ -8,6 +8,8 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # これを追加しておくと安心です！
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
