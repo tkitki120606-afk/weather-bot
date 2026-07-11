@@ -4,17 +4,14 @@ import json
 import datetime
 import sys
 
-# === 🛠️ 設定情報 ===
+# === 設定 ===
 LINE_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
-
-# 🌟 変更点1: GASのURLをここに貼り付けます
+# ★下のURLをあなたのGASのURLに書き換えてください
 GAS_URL = "https://script.google.com/macros/s/AKfycbyizm4KlixMLVMsjD5b2C57pfsMejv5WyIeFz0b6GLREUeHiCfsJYQSVsW2CJ9Y9ns9Gw/exec"
 
-# 八潮市の場所データ
 LAT = "35.8217"
 LON = "139.8444"
 
-# 🌤️ 絵文字辞書
 WEATHER_EMOJI = {
     0: "☀️ 晴れ", 1: "🌤️ ほぼ晴れ", 2: "⛅ 時々曇り", 3: "☁️ 曇り",
     45: "🌫️ 霧", 48: "🌫️ 霧", 51: "🌦️ 小雨", 53: "🌦️ 小雨", 55: "🌦️ 小雨",
@@ -25,20 +22,17 @@ WEATHER_EMOJI = {
 def get_weather_emoji(code):
     return WEATHER_EMOJI.get(code, "❓ 不明")
 
+# === メイン処理 ===
 try:
-    # === 🌟 変更点2: GASから「ON」のユーザーリストを取得する ===
-    print("GASから配信対象者をチェックしています...")
-    gas_response = requests.get(GAS_URL)
-    target_users = gas_response.json() # ["Uxxxx", "Uyyyy"] のようなリストに変換
-
-    # ONにしている人が誰もいなければ、ここで処理を終了する
+    # GASから購読者リストを取得
+    res = requests.get(GAS_URL).json()
+    target_users = res.get("weather", [])
+    
     if not target_users:
-        print("現在「ON」にしているユーザーがいません。配信をスキップします。")
+        print("配信対象者がいないため終了します。")
         sys.exit()
 
-    print(f"配信対象者が見つかりました: {len(target_users)}人")
-
-    # === 天気データの取得（変更なし） ===
+    # 天気データ取得
     url = f"https://api.open-meteo.com/v1/forecast?latitude={LAT}&longitude={LON}&minutely_15=temperature_2m,precipitation_probability,weather_code&timezone=Asia%2FTokyo"
     response = requests.get(url).json()
     min_data = response["minutely_15"]
@@ -47,7 +41,6 @@ try:
     JST = datetime.timezone(datetime.timedelta(hours=+9))
     now = datetime.datetime.now(JST).replace(tzinfo=None)
     
-    print(f" ➔ 現在時刻: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     pop_text = ""
     max_temp = -100
     max_prob = 0
@@ -67,7 +60,6 @@ try:
             count += 1
             if count >= 10: break
 
-    # 💡 アドバイス作成（変更なし）
     advice = "🧥【お出かけアドバイス】\n"
     if max_temp < 15: advice += "・少し肌寒いです。上着を持って出かけましょう。\n"
     elif max_temp < 25: advice += "・過ごしやすい気温ですが、念のため羽織るものがあると安心です。\n"
@@ -78,17 +70,10 @@ try:
 
     message_text = f"📢【八潮市のピンポイント天気】\n(今後5時間・30分刻み)\n\n{pop_text}\n{advice}"
 
-    # === 🌟 変更点3: LINEへ一斉送信 (Multicast APIを使用) ===
-    print("LINEへメッセージを送信します...")
-    # 一斉送信用のURL「multicast」を使用します
-    line_url = "https://api.line.me/v2/bot/message/multicast"
+    # LINE送信
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {LINE_TOKEN}"}
-    
-    # "to" にはリスト形式のまま target_users を渡すことができます
     payload = {"to": target_users, "messages": [{"type": "text", "text": message_text}]}
-    
-    res = requests.post(line_url, headers=headers, data=json.dumps(payload))
-    print(f"送信完了ステータス: {res.status_code}")
+    requests.post("https://api.line.me/v2/bot/message/multicast", headers=headers, data=json.dumps(payload))
 
 except Exception as e:
     print(f"エラー: {e}")
