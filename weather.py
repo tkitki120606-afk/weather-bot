@@ -8,7 +8,7 @@ import sys
 LINE_TOKEN = os.environ.get('LINE_ACCESS_TOKEN')
 
 # 🌟 変更点1: GASのURLをここに貼り付けます
-GAS_URL = "https://script.google.com/macros/s/あなたのGASのURL/exec"
+GAS_URL = "https://script.google.com/macros/s/AKfycbyizm4KlixMLVMsjD5b2C57pfsMejv5WyIeFz0b6GLREUeHiCfsJYQSVsW2CJ9Y9ns9Gw/exec"
 
 # 八潮市の場所データ
 LAT = "35.8217"
